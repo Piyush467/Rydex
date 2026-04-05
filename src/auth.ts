@@ -53,9 +53,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         async signIn({ user, account }) {
             if (account?.provider === "google") {
                 await connectDB();
-                const dbUser = await User.findOne({ email: user.email });
+                let dbUser = await User.findOne({ email: user.email });
                 if (!dbUser) {
-                    await User.create({
+                    dbUser = await User.create({
                         name: user.name,
                         email: user.email,
                     })
@@ -67,10 +67,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
 
         async jwt({ token, user }) {
-            token.name = user.name;
-            token.role = user.role;
-            token.id = user.id;
-            token.email = user.email;
+            if (user) {
+                token.name = user.name;
+                token.role = user.role;
+                token.id = user.id;
+                token.email = user.email;
+            }
             return token;
         },
         async session({ token, session }) {
@@ -89,5 +91,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         strategy: "jwt",
         maxAge: 10 * 24 * 60 * 60 * 1000,
     },
-    secret: process.env.NEXTAUTH_SECRET,
 })

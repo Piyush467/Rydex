@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { CircleDashed, Lock, Mail, User, X } from 'lucide-react';
 import Image from 'next/image';
 import axios from 'axios';
+import { signIn, useSession } from 'next-auth/react';
 
 type propType = {
     open: boolean;
@@ -19,17 +20,95 @@ function AuthModal({ open, onClose }: propType) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [err, setErr] = useState("");
+    const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+
+    const session = useSession();
+    console.log(session);
 
     const handleSignUp = async () => {
         setLoading(true);
+        setErr("");
         try {
             const { data } = await axios.post("/api/auth/register", { name, email, password });
-            console.log(data);
+
             setLoading(false);
+            setStep("otp");
         }
         catch (error: any) {
+            setErr(error.response?.data?.message ?? "something went wrong");
             setLoading(false);
-            console.log(error.response.data.message);
+        }
+    }
+
+    const handleVerifyOtp = async () => {
+        setLoading(true);
+        setErr("");
+        try {
+            const { data } = await axios.post("/api/auth/verify-email",
+                { email, otp: otp.join("") });
+
+            setOtp(["", "", "", "", "", ""]);
+            setLoading(false);
+            setStep("login");
+        }
+        catch (error: any) {
+            setErr(error.response?.data?.message ?? "something went wrong");
+            setLoading(false);
+        }
+    }
+
+    const handleLogin = async () => {
+        setLoading(true);
+        setErr("");
+        try {
+            const res = await signIn("credentials", {
+                email,
+                password,
+                redirect: false,
+            });
+
+            if (res?.error) {
+                setErr("Invalid email or password");
+            } else {
+                onClose();
+            }
+        } catch (error: any) {
+            setErr("Something went wrong");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleGoogleSignIn = async () => {
+        setLoading(true);
+        setErr("");
+        try {
+            await signIn("google", {
+                callbackUrl: "/",
+            });
+        } catch (error: any) {
+            setErr("Something went wrong");
+            setLoading(false);
+        }
+    }
+
+    const handleOtpChange = (index: number, value: string) => {
+        if (value !== "" && !/^[0-9]$/.test(value)) return;
+        const newOtp = [...otp];
+        newOtp[index] = value;
+        setOtp(newOtp);
+
+        if (value && index < otp.length - 1) {
+            const nextInput = document.getElementById(`otp-${index + 1}`);
+            nextInput?.focus();
+        }
+    }
+
+    const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Backspace" && !otp[index] && index > 0) {
+            const prevInput = document.getElementById(`otp-${index - 1}`);
+            prevInput?.focus();
         }
     }
 
@@ -62,7 +141,9 @@ function AuthModal({ open, onClose }: propType) {
                                     <p className=' mt-1 text-xs text-gray-600'>Premium rides at affordable prices</p>
                                 </div>
 
-                                <button className='w-full h-11 rounded-xl flex items-center justify-center gap-3 border border-black/20 text-sm font-semibold hover:bg-black hover:text-white transition'>
+                                <button className='w-full h-11 rounded-xl flex items-center justify-center gap-3 border border-black/20 text-sm font-semibold hover:bg-black hover:text-white transition'
+                                    onClick={handleGoogleSignIn}
+                                >
                                     <Image src={"/google.png"} alt='google' width={20} height={20} />
                                     Continue with Google
                                 </button>
@@ -98,13 +179,15 @@ function AuthModal({ open, onClose }: propType) {
                                                     />
                                                 </div>
 
-                                                <button className='w-full h-11 rounded-xl bg-black text-white text-sm font-semibold hover:bg-black/90 transition'>
-                                                    Login
+                                                <button className='w-full h-11 rounded-xl bg-black text-white text-sm font-semibold hover:bg-black/90 transition flex justify-center items-center'
+                                                    disabled={loading}
+                                                    onClick={handleLogin}>
+                                                    {!loading ? "Login" : <CircleDashed size={18} color='white' className='animate-spin mx-auto' />}
                                                 </button>
 
                                             </div>
                                             <p className='text-center text-sm mt-6 text-gray-600'>Don't have an account? <span className='text-black font-semibold cursor-pointer'
-                                                onClick={() => setStep("signup")}>Sign up</span></p>
+                                                onClick={() => { setStep("signup"); setErr(""); }}>Sign up</span></p>
 
                                         </motion.div>
                                     )}
@@ -140,19 +223,55 @@ function AuthModal({ open, onClose }: propType) {
                                                     />
                                                 </div>
 
-                                                <button className='w-full h-11 rounded-xl bg-black text-white text-sm font-semibold hover:bg-black/90 transition'
+                                                {err && <p className='text-red-500 text-sm'>*{err}</p>}
+
+                                                <button className='w-full h-11 rounded-xl bg-black text-white text-sm font-semibold hover:bg-black/90 transition flex justify-center items-center'
                                                     disabled={loading}
                                                     onClick={handleSignUp}
                                                 >
-                                                    {!loading ? "Sign up" : <CircleDashed size={18} color='white' className='animate-spin mx-auto' />}
+                                                    {!loading ? "Send Otp" : <CircleDashed size={18} color='white' className='animate-spin mx-auto' />}
                                                 </button>
 
                                             </div>
                                             <p className='text-center text-sm mt-6 text-gray-600'>
                                                 Already have an account?
                                                 <span className='text-black font-semibold cursor-pointer'
-                                                    onClick={() => setStep("login")}>Login</span>
+                                                    onClick={() => { setStep("login"); setErr(""); }}>Login</span>
                                             </p>
+
+                                        </motion.div>
+                                    )}
+
+                                    {step == "otp" && (
+                                        <motion.div
+                                            key="otp"
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 20 }}
+                                            transition={{ duration: 0.35 }}
+                                        >
+                                            <h2 className='text-xl font-semibold'>Verify OTP</h2>
+                                            <div className='flex items-center gap-3 mt-5'>
+                                                {otp.map((digit, i) => (
+                                                    <input
+                                                        key={i}
+                                                        id={`otp-${i}`}
+                                                        type="text"
+                                                        maxLength={1}
+                                                        value={digit}
+                                                        onChange={(e) => handleOtpChange(i, e.target.value)}
+                                                        onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                                                        className='w-12 h-12 text-center text-2xl border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                                                    />
+                                                ))}
+                                            </div>
+
+                                            {err && <p className='text-red-500 text-sm'>*{err}</p>}
+
+                                            <button className='mt-5 w-full h-11 rounded-xl bg-black text-white text-sm font-semibold hover:bg-black/90 transition flex justify-center items-center'
+                                                onClick={handleVerifyOtp}>
+                                                {!loading ? "Verify and Login" : <CircleDashed size={18} color='white' className='animate-spin mx-auto' />}
+                                            </button>
 
                                         </motion.div>
                                     )}
