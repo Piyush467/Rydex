@@ -60,6 +60,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         email: user.email,
                     })
                 }
+                else {
+                    if (!dbUser.name && user.name) {
+                        dbUser.name = user.name;
+                        await dbUser.save();
+                    }
+                }
                 user.id = dbUser._id.toString();
                 user.role = dbUser.role;
             }
