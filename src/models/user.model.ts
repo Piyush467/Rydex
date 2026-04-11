@@ -6,6 +6,7 @@ export interface IUser extends Document {
     password?: string;
     role: "user" | "partner" | "admin";
     isEmailVerified?: boolean;
+    partnerOnBoardingSteps: number,
     otp?: string;
     otpExpiry?: Date;
     createdAt: Date;
@@ -27,19 +28,23 @@ const UserSchema = new mongoose.Schema<IUser>({
     password: {
         type: String,
     },
-    role:{
+    role: {
         type: String,
         default: "user",
         enum: ["user", "partner", "admin"]
     },
-    isEmailVerified:{
+    isEmailVerified: {
         type: Boolean,
         default: false,
     },
-    otp:{
+    partnerOnBoardingSteps: {
+        type: Number,
+        min: 0
+    },
+    otp: {
         type: String,
     },
-    otpExpiry:{
+    otpExpiry: {
         type: Date,
     }
 }, { timestamps: true });
