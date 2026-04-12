@@ -66,7 +66,7 @@ export async function POST(req: Request) {
 
     } catch (error) {
         console.log(error)
-        return Response.json({ error: "Failed to upload image" }, { status: 500 })
+        return Response.json({ message: `vehicle error ${error}` }, { status: 500 })
     }
 }
 
@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
             return null
         }
 
-    } catch (e) {
-
+    } catch (error) {
+        return Response.json({ message: `get vehicle error ${error}` }, { status: 500 })
     }
 }
