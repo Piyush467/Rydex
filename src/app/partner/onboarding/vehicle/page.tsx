@@ -2,7 +2,8 @@
 import React, { useState } from 'react'
 import { motion } from "motion/react"
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Bike, Car, Package, Truck } from 'lucide-react'
+import { ArrowLeft, Bike, Car, CircleDashed, Package, Truck } from 'lucide-react'
+import axios from 'axios'
 const VEHICLES = [
     { id: "bike", label: "Bike", icon: Bike, desc: "2 wheeler" },
     { id: "car", label: "Car", icon: Car, desc: "4 wheeler" },
@@ -16,6 +17,30 @@ function VehiclePage() {
     const [vehicleType, setVehicleType] = useState<string>("")
     const [vehicleNumber, setVehicleNumber] = useState<string>("")
     const [vehicleModel, setVehicleModel] = useState<string>("")
+    const [loading, setLoading] = useState<boolean>(false)
+    const [error, setError] = useState<string>("")
+
+    const handleVehicle = async () => {
+        try {
+            setLoading(true)
+            const cleanedNumber = vehicleNumber.replace(/\s+/g, "");
+
+            const { data } = await axios.post(
+                "/api/partner/onboarding/vehicle",
+                {
+                    type: vehicleType,
+                    number: cleanedNumber,
+                    vehicleModel
+                }
+            );
+
+            setLoading(false)
+            
+        } catch (error: any) {
+            setError(error.response?.data.message ?? "something went wrong")
+            setLoading(false)
+        }
+    };
     return (
         <div className='min-h-screen bg-white flex items-center justify-center px-4'>
             <motion.div
@@ -100,7 +125,7 @@ function VehiclePage() {
                         </label>
                         <input
                             type='text'
-                            onChange={(e) => setVehicleNumber(e.target.value)}
+                            onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
                             value={vehicleNumber}
                             placeholder='e.g. DL 12 AB 1234'
                             id='vn'
@@ -122,12 +147,20 @@ function VehiclePage() {
                         />
                     </div>
                 </div>
+               {error && (
+                        <p className='text-red-500 text-sm'>{error}</p>
+                    )}
+
                 <motion.button
                     whileTap={{ scale: 0.98 }}
+                    disabled={loading}
                     whileHover={{ scale: 1.02 }}
-                    className='w-full mt-8 h-14 rounded-2xl bg-black text-white py-3 font-semibold flex items-center justify-center gap-2 disabled:opacity-50 transition'
+                    className='w-full mt-8 h-14 rounded-2xl bg-black text-white py-3
+                    font-semibold flex items-center justify-center gap-2 
+                    disabled:opacity-50 transition'
+                    onClick={handleVehicle}
                 >
-                    Continue
+                    {loading ?<CircleDashed className='text-white animate-spin'/>: "Continue"}
                 </motion.button>
             </motion.div>
 

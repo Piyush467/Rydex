@@ -1,10 +1,41 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, BadgeCheck, CheckCircle, CreditCard, Landmark, Phone, UploadCloud } from 'lucide-react'
+import { ArrowLeft, BadgeCheck, CheckCircle, CircleDashed, CreditCard, Landmark, Phone, UploadCloud } from 'lucide-react'
+import axios from 'axios'
 function BankPage() {
     const router = useRouter()
+    const [accountHolderName, setAccountHolderName] = useState<string>("")
+    const [accountNumber, setAccountNumber] = useState<string>("")
+    const [ifsc, setIfsc] = useState<string>("")
+    const [mobileNumber, setMobileNumber] = useState<string>("")
+    const [upi, setUpi] = useState<string>("")
+
+    const [loading, setLoading] = useState<boolean>(false)
+    const [error, setError] = useState<string>("")
+
+    const handleBank = async () => {
+        setLoading(false)
+        setError("")
+        try {
+            setLoading(true)
+            const { data } = await axios.post("/api/partner/onboarding/bank", {
+                accountHolderName,
+                accountNumber,
+                ifsc,
+                mobileNumber,
+                upi
+            })
+            setLoading(false)
+            console.log(data)
+
+        } catch (error: any) {
+            setError(error?.response?.data.message ?? "Something went wrong")
+            setLoading(false)
+            console.log(error)
+        }
+    }
     return (
         <div className='min-h-screen bg-white flex items-center justify-center px-4'>
             <motion.div
@@ -42,7 +73,10 @@ function BankPage() {
                         <div className='flex items-center gap-2 mt-2'>
                             <div className='text-gray-400'><BadgeCheck /></div>
                             <input type='text' id='bn' placeholder='As per bank records'
-                                className='flex-1 border-b pb-2 text-sm focus:outline-none border-gray-300 focus:border-black'
+                                className='flex-1 border-b pb-2 text-sm focus:outline-none
+                                 border-gray-300 focus:border-black'
+                                value={accountHolderName}
+                                onChange={(e) => setAccountHolderName(e.target.value)}
                             />
                         </div>
                     </div>
@@ -54,7 +88,10 @@ function BankPage() {
                         <div className='flex items-center gap-2 mt-2'>
                             <div className='text-gray-400'><CreditCard /></div>
                             <input type='text' id='bn' placeholder='Enter Account Number'
-                                className='flex-1 border-b pb-2 text-sm focus:outline-none border-gray-300 focus:border-black'
+                                className='flex-1 border-b pb-2 text-sm focus:outline-none
+                                 border-gray-300 focus:border-black'
+                                value={accountNumber}
+                                onChange={(e) => setAccountNumber(e.target.value)}
                             />
                         </div>
                     </div>
@@ -66,7 +103,10 @@ function BankPage() {
                         <div className='flex items-center gap-2 mt-2'>
                             <div className='text-gray-400'><Landmark /></div>
                             <input type='text' id='bn' placeholder='HDFC001234'
-                                className='flex-1 border-b pb-2 text-sm focus:outline-none border-gray-300 focus:border-black'
+                                className='flex-1 border-b pb-2 text-sm focus:outline-none
+                                 border-gray-300 focus:border-black'
+                                value={ifsc}
+                                onChange={(e) => setIfsc(e.target.value)}
                             />
                         </div>
                     </div>
@@ -78,7 +118,10 @@ function BankPage() {
                         <div className='flex items-center gap-2 mt-2'>
                             <div className='text-gray-400'><Phone /></div>
                             <input type='text' id='bn' placeholder='Enter your mobile number'
-                                className='flex-1 border-b pb-2 text-sm focus:outline-none border-gray-300 focus:border-black'
+                                className='flex-1 border-b pb-2 text-sm focus:outline-none
+                                 border-gray-300 focus:border-black'
+                                value={mobileNumber}
+                                onChange={(e) => setMobileNumber(e.target.value)}
                             />
                         </div>
                     </div>
@@ -90,10 +133,17 @@ function BankPage() {
                         <div className='flex items-center gap-2 mt-2'>
 
                             <input type='text' id='bn' placeholder='name@upi'
-                                className='flex-1 border-b pb-2 text-sm focus:outline-none border-gray-300 focus:border-black'
+                                className='flex-1 border-b pb-2 text-sm focus:outline-none
+                                 border-gray-300 focus:border-black'
+                                value={upi}
+                                onChange={(e) => setUpi(e.target.value)}
                             />
                         </div>
                     </div>
+
+                    {error && (
+                        <p className='text-red-500 text-sm'>{error}</p>
+                    )}
 
                 </div>
 
@@ -103,14 +153,16 @@ function BankPage() {
                         This ususlly takes 24-48 hours
                     </p>
                 </div>
-                
+
                 <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className='mt-8 w-full h-12 bg-black text-white rounded-2xl font-semibold flex
                     items-center justify-center gap-2 disabled:opacity-50 transition'
+                    onClick={handleBank}
+                    disabled={loading}
                 >
-                    Continue
+                    {loading ? <CircleDashed className='text-white animate-spin' /> : "Continue"}
                 </motion.button>
 
             </motion.div>

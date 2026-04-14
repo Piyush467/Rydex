@@ -1,11 +1,51 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import { motion } from 'motion/react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, FileCheck, UploadCloud } from 'lucide-react'
+import { ArrowLeft, CircleDashed, FileCheck, UploadCloud } from 'lucide-react'
+import axios from 'axios'
 
+type docsType = "aadhar" | "license" | "rc"
 function DocumentsPage() {
     const router = useRouter()
+    const [docs, setDocs] = useState<Record<docsType, File | null>>({
+        aadhar: null,
+        license: null,
+        rc: null
+    })
+    const [loading, setLoading] = useState<boolean>(false)
+    const [error, setError] = useState<string>("")
+
+    const handleDocs = async () => {
+        setLoading(false)
+        setError("")
+        try {
+            setLoading(true)
+            const formdata = new FormData()
+            if (!docs.aadhar || !docs.license || !docs.rc) {
+                setError("Please upload all documents")
+                setLoading(false)
+                return null
+            }
+            formdata.append("aadhar", docs.aadhar)
+            formdata.append("license", docs.license)
+            formdata.append("rc", docs.rc)
+
+            const { data } = await axios.post("/api/partner/onboarding/documents", formdata)
+            setLoading(false)
+
+        } catch (error: any) {
+            setError(error?.response?.data.message ?? "Something went wrong")
+            setLoading(false)
+        }
+    }
+
+    const handleImage = (doc: docsType, file: File | null) => {
+        if (!file) {
+            return
+        }
+        setDocs(prev => ({ ...prev, [doc]: file }))
+    }
     return (
         <div className='min-h-screen bg-white flex items-center justify-center px-4'>
             <motion.div
@@ -54,6 +94,9 @@ function DocumentsPage() {
                                 <UploadCloud size={18} />
                             </div>
                         </div>
+                        <input type="file" hidden accept="image/*.pdf"
+                            onChange={(e) => handleImage("aadhar", e.target.files?.[0] ?? null)}
+                        />
                     </motion.label>
 
                     <motion.label
@@ -74,6 +117,9 @@ function DocumentsPage() {
                                 <UploadCloud size={18} />
                             </div>
                         </div>
+                        <input type="file" hidden accept="image/*.pdf"
+                            onChange={(e) => handleImage("license", e.target.files?.[0] ?? null)}
+                        />
                     </motion.label>
 
                     <motion.label
@@ -94,6 +140,9 @@ function DocumentsPage() {
                                 <UploadCloud size={18} />
                             </div>
                         </div>
+                        <input type="file" hidden accept="image/*.pdf"
+                            onChange={(e) => handleImage("rc", e.target.files?.[0] ?? null)}
+                        />
                     </motion.label>
                 </div>
 
@@ -103,15 +152,19 @@ function DocumentsPage() {
                         Documents are securely stored and manually verified by our team.
                     </p>
                 </div>
+                {error && (
+                    <p className='text-red-500 text-sm mt-2'>{error}</p>
+                )}
 
                 <motion.button
                     whileHover={{ scale: 1.02 }}
+                    disabled={loading}
                     whileTap={{ scale: 0.98 }}
                     className='mt-8 w-full h-12 bg-black text-white rounded-2xl font-semibold flex 
                         items-center justify-center gap-2 disabled:opacity-50 transition'
-                    onClick={() => router.push('/partner/onboarding/documents')}
+                    onClick={handleDocs}
                 >
-                    Continue
+                    {loading ? <CircleDashed className='text-white animate-spin' /> : "Continue"}
                 </motion.button>
 
             </motion.div>
