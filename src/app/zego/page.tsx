@@ -31,7 +31,7 @@ function ZegoPage() {
                 },
 
             })
-            
+
         } catch (error) {
             console.log(error)
 
