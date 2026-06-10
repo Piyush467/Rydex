@@ -69,15 +69,28 @@ function page() {
         
       }
      })
-     let results:Place[]=(data.features ?? []).map((f:any)=>({
-        id:String(f.properties.osm_id),
-        name:f.properties.name,
-        city:f.properties.city,
-        state:f.properties.state,
-        country:f.properties.country,
-        countrycode:f.properties.countrycode,
-        lat:f.geometry.coordinates[1],
-        lng:f.geometry.coordinates[0],
+     type GeoFeature = {
+       properties?: {
+         osm_id?: string | number;
+         name?: string;
+         city?: string;
+         state?: string;
+         country?: string;
+         countrycode?: string;
+       };
+       geometry?: {
+         coordinates?: number[];
+       };
+     };
+     let results:Place[] = (data.features ?? []).map((f: GeoFeature) => ({
+        id: String(f.properties?.osm_id ?? ''),
+        name: f.properties?.name ?? '',
+        city: f.properties?.city,
+        state: f.properties?.state,
+        country: f.properties?.country,
+        countrycode: f.properties?.countrycode,
+        lat: (f.geometry?.coordinates?.[1] as number) ?? 0,
+        lng: (f.geometry?.coordinates?.[0] as number) ?? 0,
 
      }))
      if(restrict){
