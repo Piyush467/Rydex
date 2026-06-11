@@ -9,7 +9,7 @@ import axios from 'axios';
 import { IVehicle } from '@/app/models/vehicle.model';
 import { RefreshCcw } from 'lucide-react';
 import VehicleCard from '@/components/VehicleCard';
-import { vehicleTypes } from '@/app/models/vehicle.model';
+import { vehicleTypes } from '@/models/vehicle.model';
 
 
 
