@@ -6,7 +6,6 @@ import { ArrowLeft, Bus, MapPin, Navigation, Truck, Car, Bike, Zap, Search } fro
 import { useState } from 'react';
 import dynamic from "next/dynamic";
 import axios from 'axios';
-import { IVehicle } from '@/app/models/vehicle.model';
 import { RefreshCcw } from 'lucide-react';
 import VehicleCard from '@/components/VehicleCard';
 import { vehicleTypes } from '@/models/vehicle.model';
