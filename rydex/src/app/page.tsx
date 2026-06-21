@@ -1,48 +1,43 @@
-import Image from "next/image";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import PublicHome from "@/components/PublicHome";
 import { auth } from "@/auth";
-import PartnerDashboard from "@/components/PartnerDashboard";
 import AdminDashboard from "@/components/AdminDashboard";
-import connectDB from "@/lib/db";
-import User from "@/models/user.model";
+import Footer from "@/components/Footer";
 import GeoUpdater from "@/components/GeoUpdater";
+import Nav from "@/components/Nav";
+import PartnerDashboard from "@/components/PartnerDashboard";
+import PublicHome from "@/components/PublicHome";
+import connectDb from "@/lib/db";
+import User from "@/models/user.model";
 
 export default async function Home() {
-  const session = await auth();
-
-  let role = session?.user?.role;
-
-  // Fetch fresh role from database to bypass stale JWT role
-  if (session?.user?.email) {
-    await connectDB();
-    const user = await User.findOne({ email: session.user.email }).select("role");
-    if (user) {
-      role = user.role;
-    }
-  }
-
-  const user = await User.findOne({ email: session?.user?.email })
-
+const session=await auth()
+  await connectDb()
+  const user=await User.findOne({email:session?.user?.email})
+ const plainUser = JSON.parse(JSON.stringify(user))
   return (
-    <div className="w-full min-h-screen bg-white">
+   <div className="w-full min-h-screen bg-white">
+    <GeoUpdater userId={plainUser?._id}/>
+    {plainUser?.role=="partner"
+    ?
+    <>
+    <Nav/>
+    <PartnerDashboard/>
+    </>
 
-      <GeoUpdater userId={user?._id.toString()} />
-
-      {role === "partner"
-        ? <>
-          <Nav />
-          <PartnerDashboard />
-        </>
-        : (
-          role === "admin" ? <AdminDashboard />
-            : <>
-              <Nav />
-              <PublicHome />
-            </>
-        )}
-      <Footer />
-    </div>
+    :
+    (
+      plainUser?.role=="admin"
+      ?
+      <AdminDashboard/>
+      :
+      <>
+      <Nav/>
+      <PublicHome/>
+      </>
+     
+    )
+    }
+   
+    <Footer/>
+   </div>
   );
 }
