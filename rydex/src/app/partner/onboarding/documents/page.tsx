@@ -39,7 +39,7 @@ function Page() {
                 formdata,
             );
             setLoading(false);
-            router.push("/");
+            router.push("/partner/onboarding/bank");
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 setError(error.response?.data?.message || "Something went wrong");

@@ -85,7 +85,7 @@ function Page() {
 
             console.log(data);
 
-            router.push("/");
+            router.push("/partner/onboarding/documents");
 
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
