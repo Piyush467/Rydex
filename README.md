@@ -2,7 +2,9 @@
 
 # Rydex
 
-### Smart vehicle booking, partner onboarding, live ride operations, payments, and admin verification in one full-stack platform.
+### Advanced Vehicle Booking Platform
+
+Ride booking, partner onboarding, live ride operations, secure payments, and admin verification in one full-stack system.
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-16a34a?style=for-the-badge&logo=vercel&logoColor=white)](https://rydex-blond.vercel.app/)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/)
@@ -23,8 +25,6 @@
 <a href="#architecture">Architecture</a>
 -
 <a href="#quick-start">Quick Start</a>
--
-<a href="#environment-variables">Environment</a>
 -
 <a href="#workflow-deep-dive">Workflows</a>
 -
@@ -185,14 +185,14 @@ cd ../socketServer
 npm install
 ```
 
-### 2. Create environment files
+### 2. Configure environment
 
-Create:
+Create local environment files for both services before starting the project:
 
 - `rydex/.env.local`
 - `socketServer/.env`
 
-Use the templates in [Environment Variables](#environment-variables).
+The app expects database, authentication, realtime, email, upload, payment, map, video KYC, and AI suggestion service credentials to be configured locally or in your deployment provider.
 
 ### 3. Start the app and socket server
 
@@ -222,57 +222,6 @@ Production app:
 ```text
 https://rydex-blond.vercel.app/
 ```
-
-## Environment Variables
-
-### `rydex/.env.local`
-
-```bash
-# Database
-MONGODB_URI="mongodb://127.0.0.1:27017/rydex"
-
-# NextAuth
-AUTH_SECRET="replace-with-a-long-random-secret"
-AUTH_GOOGLE_ID=""
-AUTH_GOOGLE_SECRET=""
-
-# Realtime
-NEXT_PUBLIC_SOCKET_SERVER_URL="http://localhost:5000"
-
-# Email OTPs
-EMAIL="your-gmail-address@gmail.com"
-PASS="your-gmail-app-password"
-
-# Cloudinary uploads
-CLOUDINARY_CLOUD_NAME=""
-CLOUDINARY_API_KEY=""
-CLOUDINARY_API_SECRET=""
-
-# Razorpay
-RAZORPAY_KEY_ID=""
-RAZORPAY_KEY_SECRET=""
-NEXT_PUBLIC_RAZORPAY_KEY_ID=""
-
-# Maps
-NEXT_PUBLIC_GEOAPIFY_API_KEY=""
-
-# Video KYC
-NEXT_PUBLIC_ZEGO_APP_ID=""
-NEXT_PUBLIC_ZEGO_SERVER_SECRET=""
-
-# AI chat suggestions
-GEMINI_API_URL=""
-```
-
-### `socketServer/.env`
-
-```bash
-PORT=5000
-MONGODB_URI="mongodb://127.0.0.1:27017/rydex"
-NEXT_BASE_URL="http://localhost:3000"
-```
-
-> `socketServer/index.js` declares `MONGODB_URL`, but the connection uses `MONGODB_URI`. Configure `MONGODB_URI`.
 
 ## Workflow Deep Dive
 
