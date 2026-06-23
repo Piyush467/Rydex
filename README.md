@@ -15,6 +15,7 @@ Ride booking, partner onboarding, live ride operations, secure payments, and adm
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38BDF8?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Razorpay](https://img.shields.io/badge/Razorpay-Payments-0B72E7?style=for-the-badge)](https://razorpay.com/)
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-Uploads-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)](https://cloudinary.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
 **Live app:** [https://rydex-blond.vercel.app/](https://rydex-blond.vercel.app/)
 
@@ -25,6 +26,8 @@ Ride booking, partner onboarding, live ride operations, secure payments, and adm
 <a href="#architecture">Architecture</a>
 -
 <a href="#quick-start">Quick Start</a>
+-
+<a href="#docker-setup">Docker</a>
 -
 <a href="#workflow-deep-dive">Workflows</a>
 -
@@ -222,6 +225,129 @@ Production app:
 ```text
 https://rydex-blond.vercel.app/
 ```
+## Docker Setup
+
+Rydex supports containerized local development using Docker and Docker Compose.
+
+### Prerequisites
+
+- Docker
+- Docker Compose
+
+Verify installation:
+
+```bash
+docker --version
+docker compose version
+```
+
+### Build Containers
+
+```bash
+docker compose build
+```
+
+### Start Services
+
+```bash
+docker compose up
+```
+
+### Stop Services
+
+```bash
+docker compose down
+```
+
+### Rebuild After Changes
+
+```bash
+docker compose up --build
+```
+
+### Running Containers
+
+```bash
+docker ps
+```
+
+### Services
+
+| Service | Port |
+|----------|----------|
+| Next.js Application | 3000 |
+| Socket.IO Server | 5000 |
+
+### Docker Architecture
+
+```mermaid
+flowchart LR
+    User["Developer"]
+
+    subgraph Docker["Docker Compose"]
+        Frontend["Next.js Container"]
+        Socket["Socket.IO Container"]
+    end
+
+    Atlas["MongoDB Atlas"]
+
+    User --> Frontend
+    Frontend --> Socket
+    Frontend --> Atlas
+    Socket --> Atlas
+```
+
+### Project Docker Files
+
+```text
+Rydex/
+│
+├── docker-compose.yml
+│
+├── rydex/
+│   ├── Dockerfile
+│   └── .dockerignore
+│
+└── socketServer/
+    ├── Dockerfile
+    └── .dockerignore
+```
+
+### Docker Commands Reference
+
+```bash
+# Build images
+docker compose build
+
+# Start containers
+docker compose up
+
+# Start in background
+docker compose up -d
+
+# Stop containers
+docker compose down
+
+# Rebuild after changes
+docker compose up --build
+
+# View running containers
+docker ps
+
+# View logs
+docker compose logs
+
+# Follow logs
+docker compose logs -f
+```
+
+### Notes
+
+- Docker support is intended for local development and onboarding.
+- Production frontend is deployed on Vercel.
+- Realtime Socket.IO backend is deployed on Render.
+- MongoDB Atlas is used as the production database.
+- Environment variables should be configured using `.env.local` and `.env` files.
 
 ## Workflow Deep Dive
 
@@ -437,6 +563,7 @@ erDiagram
 ```text
 Rydex/
 |-- README.md
+|-- docker-compose.yml
 |-- rydex/
 |   |-- src/
 |   |   |-- app/                 # App Router pages and route handlers
@@ -447,10 +574,14 @@ Rydex/
 |   |   |-- redux/               # Redux store and user slice
 |   |   |-- auth.ts              # NextAuth configuration
 |   |   `-- proxy.ts             # Page route protection
+|   |-- Dockerfile
+|   |-- .dockerignore
 |   |-- public/
 |   |-- package.json
 |   `-- next.config.ts
 `-- socketServer/
+|   |-- Dockerfile
+|   |-- .dockerignore
     |-- index.js                 # Express + Socket.IO server
     |-- models/
     `-- package.json

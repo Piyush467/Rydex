@@ -1,0 +1,16 @@
+services:
+  frontend:
+    build:
+      context: ./rydex
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./rydex/.env.local
+
+  socket:
+    build:
+      context: ./socketServer
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./socketServer/.env

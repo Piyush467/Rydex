@@ -1,11 +1,5 @@
 import mongoose from "mongoose";
 
-const mongourl = process.env.MONGODB_URI;
-
-if (!mongourl) {
-  throw new Error("Please provide MONGODB_URI in the environment variables");
-}
-
 let cached = global.mongooseConn;
 
 if (!cached) {
@@ -16,6 +10,12 @@ if (!cached) {
 }
 
 const connectDB = async () => {
+  const mongourl = process.env.MONGODB_URI;
+
+  if (!mongourl) {
+    throw new Error("Please provide MONGODB_URI in the environment variables");
+  }
+
   if (cached.conn) {
     return cached.conn;
   }
@@ -28,11 +28,11 @@ const connectDB = async () => {
 
   try {
     cached.conn = await cached.promise;
-    console.log("✅ MongoDB Connected");
+    console.log("✅MongoDB Connected");
     return cached.conn;
   } catch (error) {
     cached.promise = null;
-    console.error("❌ MongoDB Connection Error:", error);
+    console.error(" MongoDB Connection Error:", error);
     throw error;
   }
 };
