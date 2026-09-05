@@ -41,7 +41,7 @@ Ride booking, partner onboarding, live ride operations, secure payments, and adm
 
 ## Product Overview
 
-**Rydex** is a role-based ride booking platform where riders can discover nearby approved vehicles, book rides, pay online, track live movement, and chat with drivers. Partners can onboard with vehicle, document, bank, pricing, and video KYC verification. Admins control the trust layer through review queues, approval workflows, KYC sessions, vehicle pricing checks, and earnings visibility.
+**Rydex** is a role-based ride booking platform where riders can discover nearby approved vehicles, book rides, pay online, track live movement, and chat with drivers. Partners can onboard with vehicle, document, bank, pricing, and video KYC verification. Admins control the trust layer through review queues, approval workflows, KYC sessions, vehicle pricing checks, and earning visibility.
 
 The project is organized as a two-service system:
 
