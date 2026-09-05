@@ -178,7 +178,7 @@ flowchart LR
 ### 1. Clone and install
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Piyush467/Rydex
 cd Rydex
 
 cd rydex
